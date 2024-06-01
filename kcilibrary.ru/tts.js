@@ -1,65 +1,65 @@
-@import url('https://fonts.googleapis.com/css?family=Crimson+Text');
-article {
-    width: 60%;
-    margin: auto;
-}
-blockquote,
-div,
-h1 {
-    text-align: center;
-}
-blockquote {
-    font-size: 1.2rem;
-}
-.btn {
-        background-color: #eee;
-        background-image: linear-gradient(to bottom,#fcfcfc 0,#eee 100%);
-        border-radius: 3px;
-        border: 1px solid #d5d5d5;
-        color: #333;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif; 
-        font-size: .5rem;
-        font-weight: bold;
-        padding: 4px 6px 4px 6px;
-        text-decoration: none;
-        text-shadow: 0 1px 0 #fff;
-}
-button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    height: 48px;
-    outline: none;
-    padding: 0;
-    width: 48px;
-}
-html {
-    font-size: 16pt;
-    font-family: crimson text;
-}
-#play {
-	background-image: url(play.svg);
-}
-#play.played {
-	background-image: url(play1.svg);
-}
-#pause {
-	background-image: url(pause.svg);
-}
-#pause.paused {
-	background-image: url(pause1.svg);
-}
-#stop {
-    background-image: url(stop.svg);
-}
-#stop.stopped {
-    background-image: url(stop1.svg);
-}
-@media (max-width: 700px) {
-    html {
-        font-size: 14pt;
+onload = function() {
+    if ('speechSynthesis' in window) with(speechSynthesis) {
+
+
+        var playEle = document.querySelector('#play');
+        var pauseEle = document.querySelector('#pause');
+        var stopEle = document.querySelector('#stop');
+        var flag = false;
+
+
+        playEle.addEventListener('click', onClickPlay);
+        pauseEle.addEventListener('click', onClickPause);
+        stopEle.addEventListener('click', onClickStop);
+
+        function onClickPlay() {
+            if(!flag){
+                flag = true;
+                utterance = new SpeechSynthesisUtterance(document.querySelector('article').textContent);
+                utterance.voice = getVoices()[0];
+                utterance.onend = function(){
+                    flag = false; playEle.className = pauseEle.className = ''; stopEle.className = 'stopped';
+                };
+                playEle.className = 'played';
+                stopEle.className = '';
+                speak(utterance);
+            }
+             if (paused) { /* unpause/resume narration */
+                playEle.className = 'played';
+                pauseEle.className = '';
+                resume();
+            } 
+        }
+
+        function onClickPause() {
+            if(speaking && !paused){ /* pause narration */
+                pauseEle.className = 'paused';
+                playEle.className = '';
+                pause();
+            }
+        }
+
+        function onClickStop() {
+            if(speaking){ /* stop narration */
+                /* for safari */
+                stopEle.className = 'stopped';
+                playEle.className = pauseEle.className = '';
+                flag = false;
+                cancel();
+
+            }
+        }
+
     }
-    article {
-        width: 90%;
+
+    else { /* speech synthesis not supported */
+        msg = document.createElement('h5');
+        msg.textContent = "Detected no support for Speech Synthesis";
+        msg.style.textAlign = 'center';
+        msg.style.backgroundColor = 'red';
+        msg.style.color = 'white';
+        msg.style.marginTop = msg.style.marginBottom = 0;
+        document.body.insertBefore(msg, document.querySelector('div'));
     }
+
 }
